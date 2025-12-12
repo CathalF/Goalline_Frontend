@@ -1,0 +1,341 @@
+<div class="management-container">
+  <!-- Home Button (Top Left) -->
+  <div class="home-btn-container">
+    <button class="btn btn-home" [routerLink]="'/home'">
+      <i class="bi bi-house-fill"></i> Home
+    </button>
+  </div>
+
+  <div class="page-header">
+    <h1><i class="bi bi-gear-fill"></i> Management Dashboard</h1>
+    <p class="lead">Create and manage your football data</p>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'teams'"
+      (click)="switchTab('teams')">
+      <i class="bi bi-people"></i> Teams
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'players'"
+      (click)="switchTab('players')">
+      <i class="bi bi-person"></i> Players
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'competitions'"
+      (click)="switchTab('competitions')">
+      <i class="bi bi-trophy"></i> Competitions
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'matches'"
+      (click)="switchTab('matches')">
+      <i class="bi bi-calendar-event"></i> Matches
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'seasons'"
+      (click)="switchTab('seasons')">
+      <i class="bi bi-calendar-range"></i> Seasons
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="alert alert-success mt-3" role="alert">
+    <i class="bi bi-check-circle"></i> {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Teams Tab -->
+  <div *ngIf="activeTab === 'teams'" class="tab-content">
+    <div class="row">
+      <!-- Create Team Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="bi bi-plus-circle"></i> Create New Team</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="teamName" class="form-label">Team Name *</label>
+              <input type="text" class="form-control" id="teamName" [(ngModel)]="newTeam.name" placeholder="Enter team name">
+            </div>
+            <div class="mb-3">
+              <label for="teamCountry" class="form-label">Country</label>
+              <input type="text" class="form-control" id="teamCountry" [(ngModel)]="newTeam.country" placeholder="Enter country">
+            </div>
+            <div class="mb-3">
+              <label for="teamFounded" class="form-label">Founded Year</label>
+              <input type="number" class="form-control" id="teamFounded" [(ngModel)]="newTeam.founded" placeholder="Enter founded year">
+            </div>
+            <button class="btn btn-primary" (click)="createTeam()" [disabled]="loading">
+              <i class="bi bi-plus"></i> Create Team
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Team Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-danger text-white">
+            <h3><i class="bi bi-trash"></i> Delete Team</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="teamToDelete" class="form-label">Select Team to Delete</label>
+              <select class="form-select" id="teamToDelete" [(ngModel)]="teamToDelete">
+                <option value="">Choose a team...</option>
+                <option *ngFor="let team of teams" [value]="getItemId(team)">{{ getItemName(team) }}</option>
+              </select>
+            </div>
+            <button class="btn btn-danger" (click)="deleteTeam()" [disabled]="loading || !teamToDelete">
+              <i class="bi bi-trash"></i> Delete Team
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Players Tab -->
+  <div *ngIf="activeTab === 'players'" class="tab-content">
+    <div class="row">
+      <!-- Create Player Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="bi bi-plus-circle"></i> Create New Player</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="playerName" class="form-label">Player Name *</label>
+              <input type="text" class="form-control" id="playerName" [(ngModel)]="newPlayer.name" placeholder="Enter player name">
+            </div>
+            <div class="mb-3">
+              <label for="playerPosition" class="form-label">Position</label>
+              <input type="text" class="form-control" id="playerPosition" [(ngModel)]="newPlayer.position" placeholder="e.g., Forward, Midfielder">
+            </div>
+            <div class="mb-3">
+              <label for="playerNationality" class="form-label">Nationality</label>
+              <input type="text" class="form-control" id="playerNationality" [(ngModel)]="newPlayer.nationality" placeholder="Enter nationality">
+            </div>
+            <div class="mb-3">
+              <label for="playerDOB" class="form-label">Date of Birth</label>
+              <input type="date" class="form-control" id="playerDOB" [(ngModel)]="newPlayer.date_of_birth">
+            </div>
+            <button class="btn btn-primary" (click)="createPlayer()" [disabled]="loading">
+              <i class="bi bi-plus"></i> Create Player
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Player Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-danger text-white">
+            <h3><i class="bi bi-trash"></i> Delete Player</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="playerToDelete" class="form-label">Select Player to Delete</label>
+              <select class="form-select" id="playerToDelete" [(ngModel)]="playerToDelete">
+                <option value="">Choose a player...</option>
+                <option *ngFor="let player of players" [value]="getItemId(player)">{{ getItemName(player) }}</option>
+              </select>
+            </div>
+            <button class="btn btn-danger" (click)="deletePlayer()" [disabled]="loading || !playerToDelete">
+              <i class="bi bi-trash"></i> Delete Player
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competitions Tab -->
+  <div *ngIf="activeTab === 'competitions'" class="tab-content">
+    <div class="row">
+      <!-- Create Competition Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="bi bi-plus-circle"></i> Create New Competition</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="compName" class="form-label">Competition Name *</label>
+              <input type="text" class="form-control" id="compName" [(ngModel)]="newCompetition.name" placeholder="Enter competition name">
+            </div>
+            <div class="mb-3">
+              <label for="compCountry" class="form-label">Country</label>
+              <input type="text" class="form-control" id="compCountry" [(ngModel)]="newCompetition.country" placeholder="Enter country">
+            </div>
+            <div class="mb-3">
+              <label for="compType" class="form-label">Type</label>
+              <input type="text" class="form-control" id="compType" [(ngModel)]="newCompetition.type" placeholder="e.g., League, Cup">
+            </div>
+            <button class="btn btn-primary" (click)="createCompetition()" [disabled]="loading">
+              <i class="bi bi-plus"></i> Create Competition
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Competition Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-danger text-white">
+            <h3><i class="bi bi-trash"></i> Delete Competition</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="compToDelete" class="form-label">Select Competition to Delete</label>
+              <select class="form-select" id="compToDelete" [(ngModel)]="competitionToDelete">
+                <option value="">Choose a competition...</option>
+                <option *ngFor="let comp of competitions" [value]="getItemId(comp)">{{ getItemName(comp) }}</option>
+              </select>
+            </div>
+            <button class="btn btn-danger" (click)="deleteCompetition()" [disabled]="loading || !competitionToDelete">
+              <i class="bi bi-trash"></i> Delete Competition
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matches Tab -->
+  <div *ngIf="activeTab === 'matches'" class="tab-content">
+    <div class="row">
+      <!-- Create Match Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="bi bi-plus-circle"></i> Create New Match</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="homeTeam" class="form-label">Home Team *</label>
+              <select class="form-select" id="homeTeam" [(ngModel)]="newMatch.home_team_id">
+                <option value="">Choose home team...</option>
+                <option *ngFor="let team of teams" [value]="getItemId(team)">{{ getItemName(team) }}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="awayTeam" class="form-label">Away Team *</label>
+              <select class="form-select" id="awayTeam" [(ngModel)]="newMatch.away_team_id">
+                <option value="">Choose away team...</option>
+                <option *ngFor="let team of teams" [value]="getItemId(team)">{{ getItemName(team) }}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="matchDate" class="form-label">Date</label>
+              <input type="datetime-local" class="form-control" id="matchDate" [(ngModel)]="newMatch.date">
+            </div>
+            <div class="mb-3">
+              <label for="matchComp" class="form-label">Competition</label>
+              <select class="form-select" id="matchComp" [(ngModel)]="newMatch.competition_id">
+                <option value="">Choose competition...</option>
+                <option *ngFor="let comp of competitions" [value]="getItemId(comp)">{{ getItemName(comp) }}</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" (click)="createMatch()" [disabled]="loading">
+              <i class="bi bi-plus"></i> Create Match
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Match Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-danger text-white">
+            <h3><i class="bi bi-trash"></i> Delete Match</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="matchToDelete" class="form-label">Select Match to Delete</label>
+              <select class="form-select" id="matchToDelete" [(ngModel)]="matchToDelete">
+                <option value="">Choose a match...</option>
+                <option *ngFor="let match of matches" [value]="getItemId(match)">
+                  Match {{ getItemId(match) }}
+                </option>
+              </select>
+            </div>
+            <button class="btn btn-danger" (click)="deleteMatch()" [disabled]="loading || !matchToDelete">
+              <i class="bi bi-trash"></i> Delete Match
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seasons Tab -->
+  <div *ngIf="activeTab === 'seasons'" class="tab-content">
+    <div class="row">
+      <!-- Create Season Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="bi bi-plus-circle"></i> Create New Season</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="seasonName" class="form-label">Season Name *</label>
+              <input type="text" class="form-control" id="seasonName" [(ngModel)]="newSeason.name" placeholder="e.g., 2024/25">
+            </div>
+            <div class="mb-3">
+              <label for="seasonComp" class="form-label">Competition *</label>
+              <select class="form-select" id="seasonComp" [(ngModel)]="newSeason.competition_id">
+                <option value="">Choose competition...</option>
+                <option *ngFor="let comp of competitions" [value]="getItemId(comp)">{{ getItemName(comp) }}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="seasonStart" class="form-label">Start Date</label>
+              <input type="date" class="form-control" id="seasonStart" [(ngModel)]="newSeason.start_date">
+            </div>
+            <div class="mb-3">
+              <label for="seasonEnd" class="form-label">End Date</label>
+              <input type="date" class="form-control" id="seasonEnd" [(ngModel)]="newSeason.end_date">
+            </div>
+            <button class="btn btn-primary" (click)="createSeason()" [disabled]="loading">
+              <i class="bi bi-plus"></i> Create Season
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Season Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-danger text-white">
+            <h3><i class="bi bi-trash"></i> Delete Season</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="seasonToDelete" class="form-label">Select Season to Delete</label>
+              <select class="form-select" id="seasonToDelete" [(ngModel)]="seasonToDelete">
+                <option value="">Choose a season...</option>
+                <option *ngFor="let season of seasons" [value]="getItemId(season)">{{ getItemName(season) }}</option>
+              </select>
+            </div>
+            <button class="btn btn-danger" (click)="deleteSeason()" [disabled]="loading || !seasonToDelete">
+              <i class="bi bi-trash"></i> Delete Season
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

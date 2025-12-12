@@ -1,0 +1,94 @@
+<div class="competitions-container">
+  <!-- Home Button (Top Left) -->
+  <div class="home-btn-container">
+    <button class="btn btn-home" [routerLink]="'/home'">
+      <i class="bi bi-house-fill"></i> Home
+    </button>
+  </div>
+
+  <div class="page-header">
+    <h1><i class="bi bi-trophy"></i> Competitions</h1>
+    <p class="lead">Browse football competitions from around the world</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search competitions by name..."
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="onSearch()"
+    />
+    <button class="btn btn-light btn-lg text-dark border border-dark px-4" (click)="onSearch()" [disabled]="loading">
+      <i class="bi bi-search"></i> Search
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3">Loading competitions...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadCompetitions()">
+      <i class="bi bi-arrow-clockwise"></i> Retry
+    </button>
+  </div>
+
+  <!-- Competitions Grid -->
+  <div *ngIf="!loading && !error" class="competitions-grid">
+    <div class="competition-card" *ngFor="let competition of competitions">
+      <div class="card-header">
+        <div class="competition-badge">
+          <i class="bi bi-trophy-fill"></i>
+        </div>
+        <h3>{{ competition.name }}</h3>
+      </div>
+      <div class="card-body">
+        <div class="competition-info">
+          <div class="info-item">
+            <i class="bi bi-geo-alt"></i>
+            <span>{{ competition.country || competition.area?.name || 'International' }}</span>
+          </div>
+          <div class="info-item" *ngIf="competition.type">
+            <i class="bi bi-diagram-3"></i>
+            <span>{{ competition.type }}</span>
+          </div>
+          <div class="info-item" *ngIf="competition.currentSeason">
+            <i class="bi bi-calendar3"></i>
+            <span>Season {{ competition.currentSeason.startDate | date:'yyyy' }}</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" [routerLink]="['/competitions', competition._id || competition.id]">
+            View Details <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && competitions.length === 0" class="empty-state">
+    <i class="bi bi-trophy"></i>
+    <h3>No competitions found</h3>
+    <p>There are no competitions available at the moment.</p>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="!loading && competitions.length > 0">
+    <button class="btn btn-light btn-lg text-dark border border-dark px-4" (click)="previousPage()" [disabled]="page <= 1">
+      Previous Page
+    </button>
+    <span>Page {{ page }} of {{ totalPages }}</span>
+    <button class="btn btn-light btn-lg text-dark border border-dark px-4" (click)="nextPage()" [disabled]="page >= totalPages">
+      Next Page
+    </button>
+  </div>
+</div>

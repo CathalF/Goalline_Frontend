@@ -1,0 +1,98 @@
+<div class="players-container">
+  <!-- Home Button (Top Left) -->
+  <div class="home-btn-container">
+    <button class="btn btn-home" [routerLink]="'/home'">
+      <i class="bi bi-house-fill"></i> Home
+    </button>
+  </div>
+
+  <div class="page-header">
+    <h1><i class="bi bi-people-fill"></i> Players</h1>
+    <p class="lead">Browse top football players from around the world</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search players by name..."
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="onSearch()"
+    />
+    <button class="btn btn-primary" (click)="onSearch()" [disabled]="loading">
+      <i class="bi bi-search"></i> Search
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3">Loading players...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadPlayers()">
+      <i class="bi bi-arrow-clockwise"></i> Retry
+    </button>
+  </div>
+
+  <!-- Players Grid -->
+  <div *ngIf="!loading && !error" class="players-grid">
+    <div class="player-card" *ngFor="let player of players">
+      <div class="card-header">
+        <div class="player-number">{{ player.number || '?' }}</div>
+        <div class="player-badge">
+          <i [class]="getPositionIcon(player.position)"></i>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>{{ player.name }}</h3>
+        <div class="player-info">
+          <div class="info-item">
+            <i [class]="getPositionIcon(player.position)"></i>
+            <span>{{ player.position }}</span>
+          </div>
+          <div class="info-item" *ngIf="player.team">
+            <i class="bi bi-shield"></i>
+            <span>{{ player.team }}</span>
+          </div>
+          <div class="info-item" *ngIf="!player.team && player.team_name">
+            <i class="bi bi-shield"></i>
+            <span>{{ player.team_name }}</span>
+          </div>
+          <div class="info-item" *ngIf="player.nationality">
+            <i class="bi bi-flag"></i>
+            <span>{{ player.nationality }}</span>
+          </div>
+          <div class="info-item" *ngIf="player.dateOfBirth">
+            <i class="bi bi-calendar3"></i>
+            <span>{{ player.dateOfBirth | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && players.length === 0" class="empty-state">
+    <i class="bi bi-person-x"></i>
+    <h3>No players found</h3>
+    <p>There are no players available at the moment.</p>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="!loading && players.length > 0">
+    <button class="btn btn-next" (click)="previousPage()" [disabled]="page <= 1">
+      Previous Page
+    </button>
+    <span>Page {{ page }} of {{ totalPages }}</span>
+    <button class="btn btn-next" (click)="nextPage()" [disabled]="page >= totalPages">
+      Next Page
+    </button>
+  </div>
+</div>

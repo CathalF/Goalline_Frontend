@@ -1,0 +1,115 @@
+<div class="home-container">
+  <!-- User Menu or Login Button (Top Right) -->
+  <div class="top-right-container">
+    <!-- Show Login Button if NOT authenticated -->
+    <button *ngIf="!isAuthenticated" class="btn btn-login" [routerLink]="'/login'">
+      <i class="bi bi-box-arrow-in-right"></i> Login
+    </button>
+
+    <!-- Show User Menu if authenticated -->
+    <div *ngIf="isAuthenticated" class="user-menu-container">
+      <button class="btn btn-user-menu" (click)="toggleUserMenu()">
+        <i class="bi bi-person-circle"></i>
+        <span class="user-name">{{ getUserDisplayName() }}</span>
+        <i class="bi bi-chevron-down ms-1"></i>
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div class="user-dropdown" *ngIf="showUserMenu">
+        <div class="dropdown-header">
+          <i class="bi bi-person-circle"></i>
+          <div class="user-info">
+            <strong>{{ getUserDisplayName() }}</strong>
+            <small class="text-muted">{{ currentUser?.email }}</small>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" [routerLink]="'/account'" (click)="showUserMenu = false">
+          <i class="bi bi-person"></i> Account Details
+        </a>
+        <a class="dropdown-item" [routerLink]="'/settings'" (click)="showUserMenu = false">
+          <i class="bi bi-gear"></i> Settings
+        </a>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item text-danger" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero-section text-center py-5">
+    <div class="container">
+      <!-- Welcome message for authenticated users -->
+      <div *ngIf="isAuthenticated" class="welcome-message mb-4">
+        <h2 class="display-6">Welcome back, <span class="text-primary">{{ getUserDisplayName() }}</span>! ⚽</h2>
+      </div>
+
+      <!-- Default message for non-authenticated users -->
+      <div *ngIf="!isAuthenticated">
+        <h1 class="display-3 fw-bold mb-3">GoalLine</h1>
+        <p class="lead mb-4">Your comprehensive football data platform</p>
+      </div>
+
+      <p class="text-muted">
+        Access detailed information about competitions, teams, players, and matches from leagues around the world
+      </p>
+    </div>
+  </div>
+
+  <!-- Features Grid -->
+  <div class="container py-5">
+    <h2 class="text-center mb-5">Explore Football Data</h2>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" *ngFor="let feature of features">
+        <div class="card feature-card h-100 shadow-sm" [routerLink]="feature.route">
+          <div class="card-body text-center p-4">
+            <div class="feature-icon mb-3" [class]="'text-' + feature.color">
+              <i class="bi bi-{{ feature.icon }}" style="font-size: 3rem;"></i>
+            </div>
+            <h5 class="card-title mb-3">{{ feature.title }}</h5>
+            <p class="card-text text-muted">{{ feature.description }}</p>
+            <a [routerLink]="feature.route" class="btn btn-{{ feature.color }} btn-sm mt-2">
+              View {{ feature.title }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats Section (Optional) -->
+  <div class="container py-5">
+    <div class="row text-center">
+      <div class="col-md-3 col-sm-6 mb-4">
+        <div class="stat-card p-4">
+          <i class="bi bi-trophy text-primary" style="font-size: 2rem;"></i>
+          <h3 class="mt-3">Competitions</h3>
+          <p class="text-muted">Browse global leagues</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-4">
+        <div class="stat-card p-4">
+          <i class="bi bi-people text-success" style="font-size: 2rem;"></i>
+          <h3 class="mt-3">Teams</h3>
+          <p class="text-muted">Explore club profiles</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-4">
+        <div class="stat-card p-4">
+          <i class="bi bi-calendar-event text-info" style="font-size: 2rem;"></i>
+          <h3 class="mt-3">Matches</h3>
+          <p class="text-muted">Track fixtures & results</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-4">
+        <div class="stat-card p-4">
+          <i class="bi bi-person text-warning" style="font-size: 2rem;"></i>
+          <h3 class="mt-3">Players</h3>
+          <p class="text-muted">Discover player stats</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

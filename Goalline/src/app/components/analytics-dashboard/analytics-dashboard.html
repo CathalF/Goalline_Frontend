@@ -1,0 +1,343 @@
+<div class="analytics-container">
+  <!-- Home Button (Top Left) -->
+  <div class="home-btn-container">
+    <button class="btn btn-home" [routerLink]="'/home'">
+      <i class="bi bi-house-fill"></i> Home
+    </button>
+  </div>
+
+  <div class="page-header">
+    <h1><i class="bi bi-graph-up"></i> Analytics Dashboard</h1>
+    <p class="lead">Compare teams and analyze head-to-head statistics</p>
+  </div>
+
+  <!-- Streaks Section -->
+  <div class="search-section">
+    <div class="search-card">
+      <h2><i class="bi bi-lightning-fill"></i> Current Streaks</h2>
+
+      <div class="search-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="streakType">Streak Type</label>
+            <select
+              id="streakType"
+              class="form-control form-select"
+              [(ngModel)]="streakType">
+              <option value="winning">Winning</option>
+              <option value="unbeaten">Unbeaten</option>
+              <option value="winless">Winless</option>
+              <option value="scoring">Scoring</option>
+              <option value="clean">Clean Sheet</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="streakLimit">Number of Teams</label>
+            <input
+              id="streakLimit"
+              type="number"
+              class="form-control"
+              [(ngModel)]="streakLimit"
+              min="1"
+              max="50">
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" (click)="loadStreaks()" [disabled]="loadingStreaks">
+            <i class="bi bi-search"></i> Get Streaks
+          </button>
+        </div>
+      </div>
+
+      <!-- Streaks Results -->
+      <div *ngIf="loadingStreaks" class="loading-container mt-3">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Loading streaks data...</p>
+      </div>
+
+      <div *ngIf="streaksData && !loadingStreaks" class="results-section mt-3">
+        <div *ngIf="streaksData.streaks && streaksData.streaks.length > 0">
+          <h3>Top {{ streakType | titlecase }} Streaks</h3>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Team</th>
+                  <th>Streak Length</th>
+                  <th>Goals For</th>
+                  <th>Goals Against</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let streak of streaksData.streaks; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ getTeamName(streak.team) }}</td>
+                  <td><strong>{{ streak.length }}</strong></td>
+                  <td>{{ streak.gf }}</td>
+                  <td>{{ streak.ga }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div *ngIf="!streaksData.streaks || streaksData.streaks.length === 0" class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <h3>No streaks data found</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Form Section -->
+  <div class="search-section mt-4">
+    <div class="search-card">
+      <h2><i class="bi bi-activity"></i> Team Form</h2>
+
+      <div class="search-form">
+        <div *ngIf="loadingTeams" class="loading-teams">
+          <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading teams...</span>
+          </div>
+          <span class="ms-2">Loading teams...</span>
+        </div>
+
+        <div *ngIf="!loadingTeams" class="form-row">
+          <div class="form-group">
+            <label for="teamForm">Select Team</label>
+            <select
+              id="teamForm"
+              class="form-control form-select"
+              [(ngModel)]="selectedTeamForm">
+              <option value="">Select a team</option>
+              <option *ngFor="let team of availableTeams" [value]="team._id || team.id">
+                {{ team.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="formMatches">Number of Matches</label>
+            <input
+              id="formMatches"
+              type="number"
+              class="form-control"
+              [(ngModel)]="formMatches"
+              min="1"
+              max="20">
+          </div>
+
+          <div class="form-group">
+            <label for="formBy">Form Type</label>
+            <select
+              id="formBy"
+              class="form-control form-select"
+              [(ngModel)]="formBy">
+              <option value="overall">Overall</option>
+              <option value="home">Home</option>
+              <option value="away">Away</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" (click)="loadTeamForm()" [disabled]="loadingForm || loadingTeams || !selectedTeamForm">
+            <i class="bi bi-search"></i> Get Form
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Results -->
+      <div *ngIf="loadingForm" class="loading-container mt-3">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Loading form data...</p>
+      </div>
+
+      <div *ngIf="formData && !loadingForm" class="results-section mt-3">
+        <div *ngIf="formData.data && formData.data.length > 0">
+          <h3>Recent Form ({{ formBy | titlecase }})</h3>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Team</th>
+                  <th>Matches</th>
+                  <th>Form</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of formData.data">
+                  <td>{{ getTeamName(item.team) }}</td>
+                  <td>{{ item.n }}</td>
+                  <td>
+                    <span class="form-string">
+                      <span *ngFor="let result of item.form"
+                            [class.win]="result === 'W'"
+                            [class.draw]="result === 'D'"
+                            [class.loss]="result === 'L'"
+                            class="result-badge">
+                        {{ result }}
+                      </span>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div *ngIf="!formData.data || formData.data.length === 0" class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <h3>No form data found</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Head-to-Head Comparison Section -->
+  <div class="search-section mt-4">
+    <div class="search-card">
+      <h2><i class="bi bi-search"></i> Head-to-Head Comparison</h2>
+
+      <div class="search-form">
+        <div *ngIf="loadingTeams" class="loading-teams">
+          <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading teams...</span>
+          </div>
+          <span class="ms-2">Loading teams...</span>
+        </div>
+
+        <div *ngIf="!loadingTeams" class="form-row">
+          <div class="form-group">
+            <label for="team1">Team 1</label>
+            <select
+              id="team1"
+              class="form-control form-select"
+              [(ngModel)]="team1">
+              <option value="">Select Team 1</option>
+              <option *ngFor="let team of availableTeams" [value]="team._id || team.id">
+                {{ team.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="vs-divider">
+            <span>VS</span>
+          </div>
+
+          <div class="form-group">
+            <label for="team2">Team 2</label>
+            <select
+              id="team2"
+              class="form-control form-select"
+              [(ngModel)]="team2">
+              <option value="">Select Team 2</option>
+              <option *ngFor="let team of availableTeams" [value]="team._id || team.id">
+                {{ team.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" (click)="searchHeadToHead()" [disabled]="loading || loadingTeams || !team1 || !team2">
+            <i class="bi bi-search"></i> Compare Teams
+          </button>
+          <button class="btn btn-secondary" (click)="reset()" *ngIf="hasSearched">
+            <i class="bi bi-arrow-clockwise"></i> Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-container mt-3">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Loading analytics data...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !loading" class="alert alert-danger mt-3" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> {{ error }}
+      </div>
+
+      <!-- Results Section -->
+      <div *ngIf="h2hData && !loading && !error" class="results-section mt-3">
+        <div class="stats-grid">
+          <!-- Total Matches -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="bi bi-calendar-event"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Total Matches</h3>
+              <p class="stat-value">{{ h2hData.totalMatches || 0 }}</p>
+            </div>
+          </div>
+
+          <!-- Team 1 Wins -->
+          <div class="stat-card win-card">
+            <div class="stat-icon">
+              <i class="bi bi-trophy-fill"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Team 1 Wins</h3>
+              <p class="stat-value">{{ h2hData.team1Wins || 0 }}</p>
+            </div>
+          </div>
+
+          <!-- Draws -->
+          <div class="stat-card draw-card">
+            <div class="stat-icon">
+              <i class="bi bi-dash-circle"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Draws</h3>
+              <p class="stat-value">{{ h2hData.draws || 0 }}</p>
+            </div>
+          </div>
+
+          <!-- Team 2 Wins -->
+          <div class="stat-card win-card">
+            <div class="stat-icon">
+              <i class="bi bi-trophy-fill"></i>
+            </div>
+            <div class="stat-content">
+              <h3>Team 2 Wins</h3>
+              <p class="stat-value">{{ h2hData.team2Wins || 0 }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Matches -->
+        <div class="recent-matches" *ngIf="h2hData.matches && h2hData.matches.length > 0">
+          <h2><i class="bi bi-clock-history"></i> Recent Matches</h2>
+          <div class="matches-list">
+            <div class="match-item" *ngFor="let match of h2hData.matches">
+              <div class="match-date">{{ match.date | date:'mediumDate' }}</div>
+              <div class="match-result">
+                <span class="team">{{ getTeamName(match.team1) }}</span>
+                <span class="score">{{ match.score }}</span>
+                <span class="team">{{ getTeamName(match.team2) }}</span>
+              </div>
+              <div class="match-competition" *ngIf="match.round">Round {{ match.round }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && !error && !h2hData && hasSearched" class="empty-state mt-3">
+        <i class="bi bi-inbox"></i>
+        <h3>No data found</h3>
+        <p>No head-to-head data available for these teams.</p>
+      </div>
+    </div>
+  </div>
+</div>

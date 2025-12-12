@@ -1,0 +1,96 @@
+<div class="login-container">
+  <!-- Home Button (Top Left) -->
+  <div class="home-btn-container">
+    <button class="btn btn-home" [routerLink]="'/home'">
+      <i class="bi bi-house-fill"></i> Home
+    </button>
+  </div>
+
+  <div class="login-card">
+    <div class="card-header">
+      <div class="logo-section">
+        <i class="bi bi-shield-fill-check"></i>
+      </div>
+      <h1>{{ isLoginMode ? 'Welcome Back' : 'Join Us' }}</h1>
+      <p class="subtitle">{{ isLoginMode ? 'Login to your Goalline account' : 'Create your Goalline account' }}</p>
+    </div>
+
+    <div class="card-body">
+      <!-- Error Message -->
+      <div *ngIf="error" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i>
+        {{ error }}
+      </div>
+
+      <!-- Login/Register Form -->
+      <form (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+          <label for="email">
+            <i class="bi bi-envelope"></i>
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+            [disabled]="loading">
+        </div>
+
+        <div class="form-group">
+          <label for="password">
+            <i class="bi bi-lock"></i>
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+            [disabled]="loading">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="loading">
+          <span *ngIf="!loading">
+            <i class="bi bi-box-arrow-in-right"></i>
+            {{ isLoginMode ? 'Login' : 'Register' }}
+          </span>
+          <span *ngIf="loading">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            {{ isLoginMode ? 'Logging in...' : 'Registering...' }}
+          </span>
+        </button>
+      </form>
+
+      <!-- Toggle Mode -->
+      <div class="toggle-section">
+        <p>
+          {{ isLoginMode ? "Don't have an account?" : "Already have an account?" }}
+          <button type="button" class="toggle-btn" (click)="toggleMode()" [disabled]="loading">
+            {{ isLoginMode ? 'Register here' : 'Login here' }}
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="footer-links">
+        <a routerLink="/" class="footer-link">
+          <i class="bi bi-house"></i> Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative Elements -->
+  <div class="pitch-lines">
+    <div class="center-circle"></div>
+    <div class="center-line"></div>
+  </div>
+</div>

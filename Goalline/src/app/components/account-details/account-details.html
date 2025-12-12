@@ -1,0 +1,151 @@
+<div class="account-container">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <!-- Header -->
+        <div class="account-header text-center mb-4">
+          <div class="user-avatar mb-3">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <h1 class="display-5 fw-bold">Account Details</h1>
+          <p class="text-muted">Manage your account information</p>
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
+          <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+          <button type="button" class="btn-close" (click)="error = ''"></button>
+        </div>
+
+        <!-- Account Card -->
+        <div class="account-card">
+          <div class="card-body p-4">
+            <!-- View Mode -->
+            <div *ngIf="!editMode" class="view-mode">
+              <div class="info-row">
+                <div class="info-label">
+                  <i class="bi bi-envelope"></i>
+                  <span>Email Address</span>
+                </div>
+                <div class="info-value">{{ currentUser?.email }}</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">
+                  <i class="bi bi-person"></i>
+                  <span>Username</span>
+                </div>
+                <div class="info-value">{{ getUserDisplayName() }}</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">
+                  <i class="bi bi-key"></i>
+                  <span>Password</span>
+                </div>
+                <div class="info-value">••••••••</div>
+              </div>
+
+              <div class="text-center mt-4">
+                <button class="btn btn-primary btn-lg" (click)="toggleEditMode()">
+                  <i class="bi bi-pencil"></i> Edit Account
+                </button>
+              </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <form *ngIf="editMode" (ngSubmit)="onSubmit()">
+              <div class="mb-4">
+                <label for="email" class="form-label">
+                  <i class="bi bi-envelope me-2"></i>Email Address
+                </label>
+                <input
+                  type="email"
+                  class="form-control form-control-lg"
+                  id="email"
+                  name="email"
+                  [(ngModel)]="email"
+                  required
+                  placeholder="your.email@example.com"
+                />
+              </div>
+
+              <hr class="my-4">
+
+              <h5 class="mb-3">
+                <i class="bi bi-shield-lock me-2"></i>Change Password (Optional)
+              </h5>
+              <p class="text-muted small mb-3">
+                Leave password fields empty if you don't want to change your password
+              </p>
+
+              <div class="mb-3">
+                <label for="newPassword" class="form-label">New Password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="newPassword"
+                  name="newPassword"
+                  [(ngModel)]="newPassword"
+                  placeholder="Enter new password"
+                  minlength="6"
+                />
+                <small class="text-muted">Minimum 6 characters</small>
+              </div>
+
+              <div class="mb-4">
+                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  [(ngModel)]="confirmPassword"
+                  placeholder="Confirm new password"
+                  minlength="6"
+                />
+              </div>
+
+              <div class="d-flex gap-3 justify-content-center">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-lg"
+                  (click)="toggleEditMode()"
+                  [disabled]="loading"
+                >
+                  <i class="bi bi-x-circle"></i> Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-lg"
+                  [disabled]="loading"
+                >
+                  <span *ngIf="!loading">
+                    <i class="bi bi-check-circle"></i> Save Changes
+                  </span>
+                  <span *ngIf="loading">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Saving...
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-4">
+          <a routerLink="/" class="btn btn-link">
+            <i class="bi bi-arrow-left"></i> Back to Home
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

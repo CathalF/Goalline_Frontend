@@ -1,0 +1,99 @@
+<div class="teams-container">
+  <!-- Home Button (Top Left) -->
+  <div class="home-btn-container">
+    <button class="btn btn-home" [routerLink]="'/home'">
+      <i class="bi bi-house-fill"></i> Home
+    </button>
+  </div>
+
+  <div class="page-header">
+    <h1><i class="bi bi-shield-fill"></i> Teams</h1>
+    <p class="lead">Browse football teams from around the world</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search teams by name..."
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="onSearch()"
+    />
+    <button class="btn btn-light btn-lg text-dark border border-dark px-4" (click)="onSearch()" [disabled]="loading">
+      <i class="bi bi-search"></i> Search
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3">Loading teams...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadTeams()">
+      <i class="bi bi-arrow-clockwise"></i> Retry
+    </button>
+  </div>
+
+  <!-- Teams Grid -->
+  <div *ngIf="!loading && !error" class="teams-grid">
+    <div class="team-card" *ngFor="let team of teams">
+      <div class="card-header">
+        <div class="team-badge">
+          <img *ngIf="team.crest" [src]="team.crest" [alt]="team.name" class="team-logo">
+          <i *ngIf="!team.crest" class="bi bi-shield-fill-check"></i>
+        </div>
+        <h3>{{ team.name }}</h3>
+        <p class="team-short-name" *ngIf="team.shortName">{{ team.shortName }}</p>
+      </div>
+      <div class="card-body">
+        <div class="team-info">
+          <div class="info-item" *ngIf="team.area">
+            <i class="bi bi-geo-alt"></i>
+            <span>{{ team.area.name || team.area }}</span>
+          </div>
+          <div class="info-item" *ngIf="!team.area && team.country">
+            <i class="bi bi-geo-alt"></i>
+            <span>{{ team.country }}</span>
+          </div>
+          <div class="info-item" *ngIf="team.founded">
+            <i class="bi bi-calendar3"></i>
+            <span>Founded {{ team.founded }}</span>
+          </div>
+          <div class="info-item" *ngIf="team.venue">
+            <i class="bi bi-pin-map"></i>
+            <span>{{ team.venue }}</span>
+          </div>
+          <div class="info-item" *ngIf="team.coach && team.coach.name">
+            <i class="bi bi-person-badge"></i>
+            <span>{{ team.coach.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && teams.length === 0" class="empty-state">
+    <i class="bi bi-shield"></i>
+    <h3>No teams found</h3>
+    <p>There are no teams available at the moment.</p>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="!loading && teams.length > 0">
+    <button class="btn btn-light btn-lg text-dark border border-dark px-4" (click)="previousPage()" [disabled]="page <= 1">
+      Previous Page
+    </button>
+    <span>Page {{ page }} of {{ totalPages }}</span>
+    <button class="btn btn-light btn-lg text-dark border border-dark px-4" (click)="nextPage()" [disabled]="page >= totalPages">
+      Next Page
+    </button>
+  </div>
+</div>

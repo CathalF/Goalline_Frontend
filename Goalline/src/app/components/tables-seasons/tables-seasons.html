@@ -1,0 +1,209 @@
+<div class="tables-seasons-container">
+  <!-- Home Button (Top Left) -->
+  <div class="home-btn-container">
+    <button class="btn btn-home" [routerLink]="'/home'">
+      <i class="bi bi-house-fill"></i> Home
+    </button>
+  </div>
+
+  <div class="page-header">
+    <h1><i class="bi bi-table"></i> Tables & Seasons</h1>
+    <p class="lead">View league tables and season information</p>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'tables'"
+      (click)="switchTab('tables')">
+      <i class="bi bi-table"></i> League Tables
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'seasons'"
+      (click)="switchTab('seasons')">
+      <i class="bi bi-calendar-range"></i> All Seasons
+    </button>
+  </div>
+
+  <!-- League Tables Tab -->
+  <div *ngIf="activeTab === 'tables'" class="tab-content">
+    <div class="search-section">
+      <div class="search-card">
+        <h2><i class="bi bi-funnel"></i> Select Competition & Season</h2>
+
+        <div class="search-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="competition">Competition</label>
+              <select
+                id="competition"
+                class="form-control form-select"
+                [(ngModel)]="selectedCompetition"
+                (change)="onCompetitionChange()">
+                <option value="">Select Competition</option>
+                <option *ngFor="let comp of competitions" [value]="getItemId(comp)">
+                  {{ getItemName(comp) }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="season">Season</label>
+              <select
+                id="season"
+                class="form-control form-select"
+                [(ngModel)]="selectedSeason"
+                [disabled]="!selectedCompetition">
+                <option value="">Select Season</option>
+                <option *ngFor="let season of seasons" [value]="getItemId(season)">
+                  {{ getItemName(season) }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button class="btn btn-primary" (click)="loadTable()" [disabled]="loadingTable || !selectedCompetition || !selectedSeason">
+              <i class="bi bi-search"></i> Load Table
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="tableError" class="alert alert-danger mt-3" role="alert">
+      <i class="bi bi-exclamation-triangle"></i> {{ tableError }}
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loadingTable" class="loading-container">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading table...</p>
+    </div>
+
+    <!-- Table Data -->
+    <div *ngIf="tableData && !loadingTable" class="results-section">
+      <div class="table-card">
+        <h2><i class="bi bi-trophy"></i> League Table</h2>
+
+        <div *ngIf="tableData.standings && tableData.standings.length > 0" class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Pos</th>
+                <th>Team</th>
+                <th>P</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>GF</th>
+                <th>GA</th>
+                <th>GD</th>
+                <th>Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let team of tableData.standings; let i = index">
+                <td><strong>{{ i + 1 }}</strong></td>
+                <td>{{ team.team_name || team.team }}</td>
+                <td>{{ team.played || team.P || 0 }}</td>
+                <td>{{ team.wins || team.won || team.W || 0 }}</td>
+                <td>{{ team.draws || team.drawn || team.D || 0 }}</td>
+                <td>{{ team.losses || team.lost || team.L || 0 }}</td>
+                <td>{{ team.goals_for || team.gf || team.GF || 0 }}</td>
+                <td>{{ team.goals_against || team.ga || team.GA || 0 }}</td>
+                <td>{{ team.goal_difference || team.gd || team.GD || 0 }}</td>
+                <td><strong>{{ team.points || team.Pts || 0 }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="!tableData.standings || tableData.standings.length === 0" class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <h3>No table data available</h3>
+          <p>The table for this competition and season is not yet available.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Initial State -->
+    <div *ngIf="!loadingTable && !tableData && !tableError" class="initial-state">
+      <i class="bi bi-table"></i>
+      <h3>Select Competition & Season</h3>
+      <p>Choose a competition and season above to view the league table</p>
+    </div>
+  </div>
+
+  <!-- All Seasons Tab -->
+  <div *ngIf="activeTab === 'seasons'" class="tab-content">
+    <!-- Loading State -->
+    <div *ngIf="loadingSeasons" class="loading-container">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading seasons...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="seasonsError && !loadingSeasons" class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle"></i> {{ seasonsError }}
+    </div>
+
+    <!-- Seasons List -->
+    <div *ngIf="!loadingSeasons && !seasonsError" class="seasons-grid">
+      <div class="season-card" *ngFor="let season of allSeasons">
+        <div class="season-header">
+          <h3><i class="bi bi-calendar-range"></i> {{ getItemName(season) }}</h3>
+        </div>
+        <div class="season-body">
+          <div class="season-info">
+            <div class="info-item">
+              <i class="bi bi-trophy"></i>
+              <span>Competition:</span>
+              <strong>{{ getCompetitionName(season.competition_id || season.competition?._id || season.competition?.id) }}</strong>
+            </div>
+            <div class="info-item" *ngIf="season.start_date">
+              <i class="bi bi-calendar-check"></i>
+              <span>Start:</span>
+              <strong>{{ season.start_date | date:'mediumDate' }}</strong>
+            </div>
+            <div class="info-item" *ngIf="season.end_date">
+              <i class="bi bi-calendar-x"></i>
+              <span>End:</span>
+              <strong>{{ season.end_date | date:'mediumDate' }}</strong>
+            </div>
+            <div class="info-item" *ngIf="season.current !== undefined">
+              <i class="bi bi-clock"></i>
+              <span>Status:</span>
+              <strong>{{ season.current ? 'Current' : 'Past' }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loadingSeasons && !seasonsError && allSeasons.length === 0" class="empty-state">
+      <i class="bi bi-calendar-x"></i>
+      <h3>No seasons found</h3>
+      <p>There are no seasons available at the moment.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-controls" *ngIf="!loadingSeasons && allSeasons.length > 0">
+      <button class="btn btn-light btn-lg text-dark border border-dark px-4" (click)="previousSeasonsPage()" [disabled]="seasonsPage <= 1">
+        Previous Page
+      </button>
+      <span>Page {{ seasonsPage }} of {{ seasonsTotalPages }}</span>
+      <button class="btn btn-light btn-lg text-dark border border-dark px-4" (click)="nextSeasonsPage()" [disabled]="seasonsPage >= seasonsTotalPages">
+        Next Page
+      </button>
+    </div>
+  </div>
+</div>
